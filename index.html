@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Melimoo Pet Sitting — Loving care for your pets, right at home</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#fbf6ed;
+    --paper:#fffdf9;
+    --ink:#33291f;
+    --soft-ink:#6b5d4d;
+    --terracotta:#d97847;
+    --terracotta-dk:#b85e33;
+    --sage:#7a8b6f;
+    --sage-dk:#5e6e54;
+    --mustard:#e6b34a;
+    --blush:#f3d9c7;
+    --line:rgba(51,41,31,.12);
+    --shadow:0 18px 50px -18px rgba(51,41,31,.35);
+    --r:22px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Nunito',sans-serif;
+    color:var(--ink);
+    background:var(--cream);
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(230,179,74,.10), transparent 40%),
+      radial-gradient(circle at 88% 92%, rgba(122,139,111,.12), transparent 45%);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{font-family:'Fraunces',serif;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 26px;}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 26px;
+    background:rgba(251,246,237,.82);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none;color:var(--ink)}
+  .logo{
+    width:46px;height:46px;flex:none;
+    display:grid;place-items:center;position:relative;
+    filter:drop-shadow(0 4px 10px rgba(184,94,51,.35));
+  }
+  .logo svg{width:46px;height:46px;display:block}
+  .brand-text{display:flex;flex-direction:column;line-height:1}
+  .brand-text b{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:700;letter-spacing:.2px}
+  .brand-text span{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--terracotta-dk);font-weight:700;margin-top:3px}
+
+  .menu-btn{
+    width:50px;height:46px;border:none;border-radius:14px;cursor:pointer;
+    background:var(--paper);border:1px solid var(--line);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    transition:.25s;box-shadow:0 4px 12px -8px rgba(51,41,31,.4);
+  }
+  .menu-btn:hover{background:var(--blush);transform:translateY(-1px)}
+  .menu-btn span{display:block;width:22px;height:2.5px;border-radius:3px;background:var(--ink);transition:.3s}
+  .menu-btn.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
+  .menu-btn.open span:nth-child(2){opacity:0}
+  .menu-btn.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
+
+  .dropdown{
+    position:fixed;top:74px;right:26px;z-index:99;
+    width:min(320px,calc(100vw - 52px));
+    background:var(--paper);border:1px solid var(--line);border-radius:20px;
+    box-shadow:var(--shadow);overflow:hidden;
+    opacity:0;transform:translateY(-12px) scale(.98);pointer-events:none;
+    transition:.3s cubic-bezier(.2,.8,.2,1);
+  }
+  .dropdown.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+  .dropdown a{
+    display:flex;align-items:center;gap:12px;
+    padding:15px 22px;text-decoration:none;color:var(--ink);font-weight:700;
+    border-bottom:1px solid var(--line);transition:.2s;
+  }
+  .dropdown a:last-child{border-bottom:none}
+  .dropdown a:hover{background:var(--blush);padding-left:28px;color:var(--terracotta-dk)}
+  .dropdown a .ic{width:22px;height:22px;color:var(--terracotta)}
+
+  /* ---------- HERO / SLIDESHOW ---------- */
+  .hero{padding-top:78px}
+  .slideshow{
+    position:relative;width:100%;height:min(72vh,640px);
+    overflow:hidden;background:#000;
+  }
+  .slide{
+    position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease-in-out;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  .slide.active{opacity:1}
+  /* blurred fill behind, so any aspect ratio looks intentional with no black bars */
+  .slide .bg{
+    position:absolute;inset:-40px;
+    background-size:cover;background-position:center;
+    filter:blur(26px) brightness(.7);transform:scale(1.1);
+  }
+  /* the real photo, shown in full */
+  .slide .photo{
+    position:relative;z-index:2;
+    max-width:100%;max-height:100%;
+    object-fit:contain;display:block;
+    box-shadow:0 20px 60px -20px rgba(0,0,0,.6);
+  }
+  .slide::after{
+    content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+    background:linear-gradient(180deg, rgba(51,41,31,.18) 0%, rgba(51,41,31,.0) 35%, rgba(51,41,31,.55) 100%);
+  }
+  .hero-caption{
+    position:absolute;left:0;right:0;bottom:0;z-index:6;
+    padding:0 26px 46px;text-align:center;color:#fff;pointer-events:none;
+  }
+  .hero-caption h1{
+    font-size:clamp(2.1rem,5.6vw,4rem);font-weight:900;line-height:1.04;
+    text-shadow:0 4px 28px rgba(0,0,0,.5);letter-spacing:-.5px;
+  }
+  .hero-caption p{
+    font-size:clamp(1rem,2.2vw,1.3rem);font-weight:600;margin-top:12px;
+    text-shadow:0 2px 14px rgba(0,0,0,.6);max-width:640px;margin-inline:auto;
+  }
+  .arrow{
+    position:absolute;top:50%;transform:translateY(-50%);z-index:5;
+    width:54px;height:54px;border-radius:50%;cursor:pointer;border:none;
+    background:rgba(255,255,255,.22);backdrop-filter:blur(6px);
+    border:1.5px solid rgba(255,255,255,.45);
+    display:grid;place-items:center;color:#fff;transition:.25s;
+  }
+  .arrow:hover{background:rgba(255,255,255,.4);transform:translateY(-50%) scale(1.08)}
+  .arrow svg{width:24px;height:24px}
+  .arrow.prev{left:18px}
+  .arrow.next{right:18px}
+  .dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:5;display:flex;gap:9px}
+  .dots button{width:9px;height:9px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.5);transition:.3s;padding:0}
+  .dots button.active{background:#fff;width:26px;border-radius:5px}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:84px 0}
+  .eyebrow{
+    display:inline-block;font-weight:800;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--terracotta-dk);background:var(--blush);padding:6px 14px;border-radius:999px;margin-bottom:18px;
+  }
+  h2.title{font-size:clamp(1.9rem,4vw,2.9rem);font-weight:700;line-height:1.08;letter-spacing:-.5px}
+
+  .intro{text-align:center;max-width:780px;margin:0 auto}
+  .intro p{font-size:1.13rem;color:var(--soft-ink);margin-top:18px}
+  .intro p strong{color:var(--ink)}
+
+  /* services */
+  .services{background:var(--paper);border-block:1px solid var(--line)}
+  .svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;margin-top:46px}
+  .card{
+    background:var(--cream);border:1px solid var(--line);border-radius:var(--r);
+    padding:30px 26px;transition:.3s;position:relative;overflow:hidden;
+  }
+  .card:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:var(--terracotta)}
+  .card .emoji{font-size:2.4rem;display:block;margin-bottom:14px}
+  .card h3{font-size:1.35rem;font-weight:600;margin-bottom:8px}
+  .card p{color:var(--soft-ink);font-size:.98rem}
+
+  /* animals strip */
+  .animals{text-align:center}
+  .pills{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:34px}
+  .pill{
+    background:var(--paper);border:1.5px solid var(--line);border-radius:999px;
+    padding:11px 22px;font-weight:700;display:flex;align-items:center;gap:9px;transition:.25s;
+  }
+  .pill:hover{border-color:var(--sage);background:var(--blush);transform:translateY(-2px)}
+  .pill .e{font-size:1.2rem}
+  .animals .note{margin-top:26px;color:var(--soft-ink);font-style:italic;max-width:620px;margin-inline:auto}
+
+  /* meet mel */
+  .mel{background:var(--paper);border-block:1px solid var(--line)}
+  .mel-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:54px;align-items:center}
+  .mel-photo{position:relative}
+  .mel-photo img{
+    width:100%;border-radius:var(--r);display:block;box-shadow:var(--shadow);
+    border:6px solid var(--paper);
+  }
+  .mel-photo .badge{
+    position:absolute;bottom:-18px;right:-10px;
+    background:var(--terracotta);color:#fff;border-radius:18px;padding:14px 20px;
+    font-family:'Fraunces',serif;font-weight:700;line-height:1;text-align:center;
+    box-shadow:0 14px 30px -12px rgba(217,120,71,.8);transform:rotate(-3deg);
+  }
+  .mel-photo .badge b{font-size:1.8rem;display:block}
+  .mel-photo .badge span{font-size:.72rem;letter-spacing:.05em;font-family:'Nunito';font-weight:700}
+  .mel-text p{color:var(--soft-ink);font-size:1.06rem;margin-top:16px}
+  .mel-text p strong{color:var(--ink)}
+  .mel-creds{list-style:none;margin-top:24px;display:grid;gap:12px}
+  .mel-creds li{display:flex;gap:12px;align-items:flex-start;font-weight:600}
+  .mel-creds li svg{width:22px;height:22px;color:var(--sage-dk);flex:none;margin-top:2px}
+
+  /* rates */
+  .rates-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px;margin-top:46px}
+  .rate{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:28px 26px;
+    display:flex;flex-direction:column;transition:.3s;position:relative;
+  }
+  .rate:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:var(--mustard)}
+  .rate .rhead{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .rate .rhead .e{font-size:1.9rem}
+  .rate h3{font-size:1.3rem;font-weight:600}
+  .rate p{color:var(--soft-ink);font-size:.97rem;flex:1}
+  .rate .price{
+    margin-top:18px;font-family:'Fraunces',serif;font-weight:700;font-size:1.7rem;color:var(--terracotta-dk);
+  }
+  .rate .price small{font-size:.85rem;color:var(--soft-ink);font-family:'Nunito';font-weight:700}
+  .rate .extra{font-size:.85rem;color:var(--sage-dk);font-weight:700;margin-top:4px}
+  .rates-note{text-align:center;margin-top:30px;color:var(--soft-ink);font-style:italic}
+
+  /* areas */
+  .areas{background:var(--paper);border-block:1px solid var(--line);text-align:center}
+  .area-pills{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:32px}
+  .area-pills .pill{background:var(--cream);font-size:1.05rem}
+  .area-pills .pill svg{width:20px;height:20px;color:var(--terracotta)}
+
+  /* book */
+  .book{text-align:center}
+  .book-card{
+    max-width:680px;margin:40px auto 0;background:var(--paper);border:1px solid var(--line);
+    border-radius:28px;padding:48px 40px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  .book-card::before{
+    content:"";position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;
+    background:radial-gradient(circle, rgba(230,179,74,.25), transparent 70%);
+  }
+  .book-card p{color:var(--soft-ink);font-size:1.08rem;margin-top:12px;position:relative}
+  .contact-row{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:32px;position:relative}
+  .btn{
+    display:inline-flex;align-items:center;gap:11px;text-decoration:none;font-weight:800;
+    padding:16px 28px;border-radius:16px;font-size:1.05rem;transition:.25s;
+  }
+  .btn svg{width:22px;height:22px}
+  .btn-call{background:var(--terracotta);color:#fff;box-shadow:0 14px 30px -12px rgba(217,120,71,.8)}
+  .btn-call:hover{background:var(--terracotta-dk);transform:translateY(-3px)}
+  .btn-mail{background:var(--sage);color:#fff;box-shadow:0 14px 30px -12px rgba(122,139,111,.8)}
+  .btn-mail:hover{background:var(--sage-dk);transform:translateY(-3px)}
+
+  /* footer */
+  footer{background:var(--ink);color:#f3ece0;padding:46px 0 30px;text-align:center}
+  footer .fbrand{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;display:flex;align-items:center;gap:10px;justify-content:center}
+  footer .fbrand .logo{width:38px;height:38px}
+  footer .fbrand .logo svg{width:38px;height:38px}
+  footer .fcontact{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px 26px;justify-content:center;font-weight:600}
+  footer .fcontact a{color:var(--mustard);text-decoration:none}
+  footer .fcontact a:hover{text-decoration:underline}
+  footer .fnote{margin-top:22px;font-size:.85rem;color:rgba(243,236,224,.55)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(28px);transition:.8s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:760px){
+    .mel-grid{grid-template-columns:1fr;gap:48px}
+    .mel-photo{max-width:380px;margin:0 auto}
+    section{padding:64px 0}
+    .arrow{width:44px;height:44px}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header>
+  <a href="#home" class="brand">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.6C5.5 17.2 2 13.2 2 8.6 2 5.6 4 3.6 6.7 3.6c1.9 0 3.6 1 4.5 2.6h1.6c.9-1.6 2.6-2.6 4.5-2.6C20 3.6 22 5.6 22 8.6c0 4.6-3.5 8.6-10 13Z" fill="#e08a5d"/><path d="M12 21.6C5.5 17.2 2 13.2 2 8.6 2 5.6 4 3.6 6.7 3.6c1.9 0 3.6 1 4.5 2.6H12Z" fill="#b85e33"/><circle cx="12" cy="11.6" r="2.7" fill="#fffdf9"/><circle cx="8.7" cy="8.6" r="1.25" fill="#fffdf9"/><circle cx="12" cy="7.3" r="1.25" fill="#fffdf9"/><circle cx="15.3" cy="8.6" r="1.25" fill="#fffdf9"/></svg>
+    </span>
+    <span class="brand-text"><b>Melimoo</b><span>Pet Sitting</span></span>
+  </a>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu"><span></span><span></span><span></span></button>
+</header>
+
+<nav class="dropdown" id="dropdown">
+  <a href="#home" class="navlink"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
+  <a href="#rates" class="navlink"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Our Rates</a>
+  <a href="#book" class="navlink"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Book Now</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="home">
+  <div class="slideshow" id="slideshow">
+    <div class="slide active"><div class="bg" style="background-image:url('images/cat-sun.jpg')"></div><img class="photo" src="images/cat-sun.jpg" alt="A relaxed cat"></div>
+    <div class="slide"><div class="bg" style="background-image:url('images/yorkie.jpg')"></div><img class="photo" src="images/yorkie.jpg" alt="A happy small dog"></div>
+    <div class="slide"><div class="bg" style="background-image:url('images/rabbits.jpg')"></div><img class="photo" src="images/rabbits.jpg" alt="Two rabbits"></div>
+    <div class="slide"><div class="bg" style="background-image:url('images/poodle-pool.jpg')"></div><img class="photo" src="images/poodle-pool.jpg" alt="A dog in a paddling pool"></div>
+    <div class="slide"><div class="bg" style="background-image:url('images/tabby-cat.jpg')"></div><img class="photo" src="images/tabby-cat.jpg" alt="A tabby and white cat"></div>
+    <div class="slide"><div class="bg" style="background-image:url('images/gsd.jpg')"></div><img class="photo" src="images/gsd.jpg" alt="A German Shepherd with a toy"></div>
+    <div class="slide"><div class="bg" style="background-image:url('images/mel-deer-new.jpg')"></div><img class="photo" src="images/mel-deer-new.jpg" alt="Mel feeding a deer"></div>
+
+    <button class="arrow prev" id="prevBtn" aria-label="Previous">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="arrow next" id="nextBtn" aria-label="Next">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+
+    <div class="hero-caption">
+      <h1>Loving care for your pets,<br>right at home.</h1>
+      <p>A caring, family-run pet sitting & dog walking service across the Vale of Evesham.</p>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+</div>
+
+<!-- INTRO / SERVICES -->
+<section class="services">
+  <div class="wrap">
+    <div class="intro reveal">
+      <span class="eyebrow">Welcome to Melimoo</span>
+      <h2 class="title">We treat every pet like one of our own</h2>
+      <p>We're a small, <strong>client-centred family business</strong> built on a lifetime of loving animals. When you're away — whether that's for an hour, a long weekend, or a whole holiday — we come to your home so your pets stay relaxed in the place they know best, surrounded by their own beds, smells and routines.</p>
+      <p>Feeding, fresh water, walks, playtime, cuddles and proper company — we do it all, and we do it with a smile. No kennels, no stress, no strangers — just genuine, attentive care from people who truly love what they do. Your pet is part of a family, and that's exactly how we treat them.</p>
+    </div>
+
+    <div class="svc-grid">
+      <div class="card reveal"><span class="emoji">🏠</span><h3>House Sitting</h3><p>Overnight stays in your home so your pet always has familiar company and round-the-clock care.</p></div>
+      <div class="card reveal"><span class="emoji">🦴</span><h3>Drop-In Visits</h3><p>Pop-in visits to feed, water, play and check on your pet — once or twice a day, your call.</p></div>
+      <div class="card reveal"><span class="emoji">🐕</span><h3>Dog Walking</h3><p>Energetic, reliable walks tailored to your dog's pace and personality, collected from your door.</p></div>
+      <div class="card reveal"><span class="emoji">❤️</span><h3>Individual Care</h3><p>Dietary needs, exercise routines, medication and little quirks — all noted, all respected.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ANIMALS -->
+<section class="animals">
+  <div class="wrap">
+    <span class="eyebrow reveal">Who we look after</span>
+    <h2 class="title reveal">All creatures great & small</h2>
+    <div class="pills">
+      <span class="pill reveal"><span class="e">🐶</span>Dogs</span>
+      <span class="pill reveal"><span class="e">🐱</span>Cats</span>
+      <span class="pill reveal"><span class="e">🐹</span>Hamsters</span>
+      <span class="pill reveal"><span class="e">🐰</span>Rabbits</span>
+      <span class="pill reveal"><span class="e">🐔</span>Chickens</span>
+      <span class="pill reveal"><span class="e">🐟</span>Fish</span>
+      <span class="pill reveal"><span class="e">🦎</span>Reptiles</span>
+      <span class="pill reveal"><span class="e">🦀</span>Crabs</span>
+    </div>
+    <p class="note reveal">From cuddly companions to small habitat friends — got something a little more unique? We'd love to hear about them. Just get in touch and we'll happily talk through your pet's needs.</p>
+  </div>
+</section>
+
+<!-- MEET MEL -->
+<section class="mel" id="mel">
+  <div class="wrap">
+    <div class="mel-grid">
+      <div class="mel-photo reveal">
+        <img src="images/mel-deer-new.jpg" alt="Mel, your pet sitter">
+        <div class="badge"><b>3+</b><span>YEARS EXPERIENCE</span></div>
+      </div>
+      <div class="mel-text reveal">
+        <span class="eyebrow">Meet your sitter</span>
+        <h2 class="title">Say hello to Mel</h2>
+        <p>Mel has spent over <strong>three years pet sitting</strong> a wonderful range of animals — everything from boisterous dogs to gentle rabbits. Having grown up in <strong>a family of farmers</strong>, she even has hands-on farm experience and was raised in a wonderfully pet-saturated home, so she's completely comfortable and confident around household animals of every shape and size.</p>
+        <p>Clients regularly comment on her <strong>attention to detail</strong> — keeping on top of dietary needs, exercise routines and the individual little touches that make each pet feel safe and happy. No matter the animal, Mel believes every pet is a member of a family, and gets all the love and attention they deserve when she's around.</p>
+        <ul class="mel-creds">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>3+ years caring for a wide range of animals</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Hands-on farm experience from a farming family</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Glowing reviews for attentive, individual care</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RATES -->
+<section id="rates">
+  <div class="wrap">
+    <div class="intro reveal">
+      <span class="eyebrow">Transparent pricing</span>
+      <h2 class="title">Our Rates</h2>
+    </div>
+    <div class="rates-grid">
+      <div class="rate reveal">
+        <div class="rhead"><span class="e">🏠</span><h3>House Sitting</h3></div>
+        <p>Our sitter stays overnight in your home and cares for your pet.</p>
+        <div class="price">from £50 <small>/ night</small></div>
+      </div>
+      <div class="rate reveal">
+        <div class="rhead"><span class="e">☀️</span><h3>One Home Visit a Day</h3></div>
+        <p>Book a pet sitter to stop by your home to feed and play with your pet.</p>
+        <div class="price">from £20 <small>/ day</small></div>
+      </div>
+      <div class="rate reveal">
+        <div class="rhead"><span class="e">🌗</span><h3>2× Home Visits</h3></div>
+        <p>Two drop-in visits for your pet throughout the day.</p>
+        <div class="price">from £30 <small>/ day</small></div>
+      </div>
+      <div class="rate reveal">
+        <div class="rhead"><span class="e">🐕</span><h3>Dog Walking</h3></div>
+        <p>Our experienced dog walker collects your dog from home for a minimum 30-minute walk.</p>
+        <div class="price">from £10 <small>/ walk</small></div>
+        <div class="extra">+ £5 / additional pet</div>
+      </div>
+    </div>
+    <p class="rates-note reveal">All charges are subject to change depending on individual circumstances and availability.</p>
+  </div>
+</section>
+
+<!-- AREAS -->
+<section class="areas">
+  <div class="wrap">
+    <span class="eyebrow reveal">Where we cover</span>
+    <h2 class="title reveal">Serving the Vale of Evesham</h2>
+    <div class="area-pills">
+      <span class="pill reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Evesham</span>
+      <span class="pill reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Honeybourne</span>
+      <span class="pill reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Badsey</span>
+      <span class="pill reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Moreton-in-Marsh</span>
+    </div>
+    <p class="note reveal" style="margin-top:26px;color:var(--soft-ink)">Outside these areas? Not a problem — other locations may be available on enquiry. An additional charge may apply depending on the area, which we're always happy to discuss when you get in touch.</p>
+  </div>
+</section>
+
+<!-- BOOK -->
+<section class="book" id="book">
+  <div class="wrap">
+    <span class="eyebrow reveal">Ready when you are</span>
+    <h2 class="title reveal">Book Now</h2>
+    <div class="book-card reveal">
+      <p>Thank you so much for considering Melimoo Pet Sitting — it really means the world to us. To check availability or chat through exactly what your pet needs, just give our friendly pet sitter Mel a call/text or drop her an email. We'd love to hear all about your furry, feathered or scaly family member!</p>
+      <div class="contact-row">
+        <a class="btn btn-call" href="tel:07751864465">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          07751 864465
+        </a>
+        <a class="btn btn-mail" href="mailto:Mel@melimoopetsitting.co.uk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+          Email Mel
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="fbrand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.6C5.5 17.2 2 13.2 2 8.6 2 5.6 4 3.6 6.7 3.6c1.9 0 3.6 1 4.5 2.6h1.6c.9-1.6 2.6-2.6 4.5-2.6C20 3.6 22 5.6 22 8.6c0 4.6-3.5 8.6-10 13Z" fill="#e08a5d"/><path d="M12 21.6C5.5 17.2 2 13.2 2 8.6 2 5.6 4 3.6 6.7 3.6c1.9 0 3.6 1 4.5 2.6H12Z" fill="#b85e33"/><circle cx="12" cy="11.6" r="2.7" fill="#fffdf9"/><circle cx="8.7" cy="8.6" r="1.25" fill="#fffdf9"/><circle cx="12" cy="7.3" r="1.25" fill="#fffdf9"/><circle cx="15.3" cy="8.6" r="1.25" fill="#fffdf9"/></svg>
+      </span>
+      Melimoo Pet Sitting
+    </div>
+    <div class="fcontact">
+      <span>📞 <a href="tel:07751864465">07751 864465</a></span>
+      <span>✉️ <a href="mailto:Mel@melimoopetsitting.co.uk">Mel@melimoopetsitting.co.uk</a></span>
+    </div>
+    <p class="fnote">Evesham · Honeybourne · Badsey · Moreton-in-Marsh — and beyond on enquiry. Every pet treated like family. 🐾</p>
+  </div>
+</footer>
+
+<script>
+  /* ---- Dropdown menu ---- */
+  const menuBtn = document.getElementById('menuBtn');
+  const dropdown = document.getElementById('dropdown');
+  menuBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    menuBtn.classList.toggle('open');
+    dropdown.classList.toggle('open');
+  });
+  document.querySelectorAll('.navlink').forEach(a=>a.addEventListener('click',()=>{
+    menuBtn.classList.remove('open'); dropdown.classList.remove('open');
+  }));
+  document.addEventListener('click', e=>{
+    if(!dropdown.contains(e.target) && !menuBtn.contains(e.target)){
+      menuBtn.classList.remove('open'); dropdown.classList.remove('open');
+    }
+  });
+
+  /* ---- Slideshow ---- */
+  const slides = [...document.querySelectorAll('.slide')];
+  const dotsWrap = document.getElementById('dots');
+  let cur = 0, timer;
+  slides.forEach((_,i)=>{
+    const b = document.createElement('button');
+    if(i===0) b.classList.add('active');
+    b.addEventListener('click',()=>go(i,true));
+    dotsWrap.appendChild(b);
+  });
+  const dots = [...dotsWrap.children];
+  function go(n, manual){
+    slides[cur].classList.remove('active');
+    dots[cur].classList.remove('active');
+    cur = (n + slides.length) % slides.length;
+    slides[cur].classList.add('active');
+    dots[cur].classList.add('active');
+    if(manual) restart();
+  }
+  function next(m){ go(cur+1, m); }
+  function prev(m){ go(cur-1, m); }
+  function restart(){ clearInterval(timer); timer = setInterval(()=>next(false), 5000); }
+  document.getElementById('nextBtn').addEventListener('click',()=>next(true));
+  document.getElementById('prevBtn').addEventListener('click',()=>prev(true));
+  restart();
+
+  /* ---- Scroll reveal ---- */
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach((en,i)=>{
+      if(en.isIntersecting){
+        setTimeout(()=>en.target.classList.add('in'), (i%4)*80);
+        io.unobserve(en.target);
+      }
+    });
+  },{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
